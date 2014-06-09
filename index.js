@@ -17,37 +17,68 @@ PCQueue.prototype.produce = function(func) {
     var promise = new Promise(function(resolve, reject) {
         _resolve = resolve;
         _reject = reject;
-        
+
         //If a consumer is already free
-        if(this.active_consumers < this.num_consumers) {
-            this.active_consumers++;
-            
-            this.consume(resolve, reject)();
+        if(self.active_consumers < self.num_consumers) {
+            self.active_consumers++;
+
+            self.consume(resolve, reject)();
         }
     });
-    
-    //When a consumer finishes consuming, and is free.
+
+    //When a consumer finishes consuming, and is free. Both resolve and reject
     promise.done(function() {
-        this.active_consumers--;
-        
+        self.active_consumers--;
+
         if(self.promises.length > 0) {
-            this.consume(_resolve, _reject)();
+            self.consume(_resolve, _reject)();
+        }
+    }, function() {
+        self.active_consumers--;
+
+        if(self.promises.length > 0) {
+            self.consume(_resolve, _reject)();
         }
     });
-    
+
     return promise;
 }
 
 PCQueue.prototype.consume = function(resolve, reject) {
     var self = this;
-    
+
     return function() {
         var curr = self.promises.shift();
 
-        curr().then(function(data) {
+        curr().done(function(data) {
             resolve(data);
         }, function(err) {
             reject(err);
         });
     }
+}
+
+var produced = ['a', 'b', 'c', 'd', 'e'];
+
+var pcqueue = new PCQueue({
+    maxParallel : 2
+});
+
+for(var i = 0; i < produced.length; i++) {
+    pcqueue.produce((function(i) {
+        return function(){
+            return dummyConsumer(i);
+        }
+    })(i)).done(function(data) {
+        console.log("Producer says: " + data);
+    });
+}
+
+function dummyConsumer(i) {
+    return new Promise(function(resolve, reject){
+        setTimeout(function() {
+            console.log("Consumer says: " + i);
+            resolve(i);
+        }, (Math.random()*2000 + 2000));
+    });
 }
