@@ -1,0 +1,31 @@
+{
+  "name": "promise-pc",
+  "version": "0.1.0",
+  "description": "Promise implementation of a producer-consumer queue",
+  "main": "index.js",
+  "dependencies": {
+    "promise": "~5.0.0"
+  },
+  "devDependencies": {
+    "request": "~2.36.0",
+    "mocha": "~1.20.1",
+    "assert": "~1.1.1"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anlawande/promise-pc.git"
+  },
+  "keywords": [
+    "promise",
+    "producer",
+    "consumer",
+    "queue"
+  ],
+  "author": "Aniket Lawande",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "5e1743725062f491df0fb29250327c75fbaa1a6b"
+}
