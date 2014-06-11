@@ -6,4 +6,28 @@ A Promise implementation of the producer-consumer problem.
 Basically a queue in which you can keep adding promises. 
 Consumer(s) consume promises and notify the producer.
 
-Number of consumers is dynamic.
+Number of consumers is dynamic. (Currently changing the maxParallel value does not do anything, coming soon)
+
+#### Usage
+
+1. Require the module and initialize a PCQueue
+```javascript
+var PCQueue = require("promise-pc");
+var pcqueue = new PCQueue(opts);
+```
+See below for available options
+
+2. When an item is ready to be consumed, a producer pushes it onto the queue using the *produce* method.
+```javascript
+var promise = pcqueue.produce(function() {
+  //This is a consumer function
+  
+  //Must return a promise object
+});
+
+promise.then(function(result){  //Use 'done' instead of 'then' if you wish to propagate errors
+//Producer is notified after a consumer consumes an item
+//Results of consumption are available here
+});
+```
+Note that the consumer function is not immediately invoked. Only when a consumer is free (as indicated by the maxParallel option).
