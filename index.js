@@ -59,27 +59,4 @@ PCQueue.prototype.consume = function() {
     });
 }
 
-var produced = ['a', 'b', 'c', 'd', 'e'];
-
-var pcqueue = new PCQueue({
-    maxParallel : 2
-});
-
-for(var i = 0; i < produced.length; i++) {
-    pcqueue.produce((function(i) {
-        return function(){
-            return dummyConsumer(i);
-        }
-    })(i)).done(function(data) {
-        console.log("Producer says: " + data);
-    });
-}
-
-function dummyConsumer(i) {
-    return new Promise(function(resolve, reject){
-        setTimeout(function() {
-            console.log("Consumer says: " + i);
-            resolve(i);
-        }, (Math.random()*2000 + 2000));
-    });
-}
+exports.PCQueue = PCQueue;
