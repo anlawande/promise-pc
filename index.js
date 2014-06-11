@@ -10,19 +10,21 @@ function PCQueue(opts) {
 }
 
 PCQueue.prototype.produce = function(func) {
-    this.promises.push(func);
-    var _resolve, _reject;
     var self = this;
 
+    var obj = {
+        "func" : func
+    };
+    this.promises.push(obj);
     var promise = new Promise(function(resolve, reject) {
-        _resolve = resolve;
-        _reject = reject;
+        obj.resolve = resolve;
+        obj.reject = reject;
 
         //If a consumer is already free
         if(self.active_consumers < self.num_consumers) {
             self.active_consumers++;
 
-            self.consume(resolve, reject)();
+            self.consume();
         }
     });
 
@@ -31,31 +33,30 @@ PCQueue.prototype.produce = function(func) {
         self.active_consumers--;
 
         if(self.promises.length > 0) {
-            self.consume(_resolve, _reject)();
+            self.active_consumers++;
+            self.consume();
         }
     }, function() {
         self.active_consumers--;
 
         if(self.promises.length > 0) {
-            self.consume(_resolve, _reject)();
+            self.active_consumers++;
+            self.consume();
         }
     });
 
     return promise;
 }
 
-PCQueue.prototype.consume = function(resolve, reject) {
+PCQueue.prototype.consume = function() {
     var self = this;
 
-    return function() {
-        var curr = self.promises.shift();
-
-        curr().done(function(data) {
-            resolve(data);
-        }, function(err) {
-            reject(err);
-        });
-    }
+    var curr = self.promises.shift();
+    curr.func().done(function(data) {
+        curr.resolve(data);
+    }, function(err) {
+        curr.reject(err);
+    });
 }
 
 var produced = ['a', 'b', 'c', 'd', 'e'];
