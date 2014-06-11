@@ -2,7 +2,7 @@ var Promise = require("promise");
 
 function PCQueue(opts) {
     this.promises = [];
-    this.num_consumers = 1;
+    this.num_consumers = null;
     this.active_consumers = 0;
 
     if(opts && opts.maxParallel)
@@ -21,7 +21,7 @@ PCQueue.prototype.produce = function(func) {
         obj.reject = reject;
 
         //If a consumer is already free
-        if(self.active_consumers < self.num_consumers) {
+        if(!self.num_consumers || self.active_consumers < self.num_consumers) {
             self.active_consumers++;
 
             self.consume();
