@@ -4,7 +4,7 @@ promise-pc
 A Promise implementation of the producer-consumer problem.
 
 Basically a queue in which you can keep adding promises. 
-Consumer(s) consume promises and notify the producer.
+Consumer(s) consume promises and notify the producer. Uses the [then/promise](http://github.com/then/promise) implementation.
 
 Number of consumers is dynamic. (Currently changing the maxParallel value does not do anything, coming soon)
 
@@ -17,7 +17,7 @@ var pcqueue = new PCQueue(opts);
 ```
 See below for available options
 
-* When an item is ready to be consumed, a producer pushes it onto the queue using the *produce* method.
+* When an item is ready to be consumed, a producer pushes it onto the queue using the **produce** method.
 ```javascript
 var promise = pcqueue.produce(function() {
   //This is a consumer function
@@ -31,3 +31,7 @@ promise.then(function(result){  //Use 'done' instead of 'then' if you wish to pr
 });
 ```
 Note that the consumer function is not immediately invoked. Only when a consumer is free (as indicated by the maxParallel option).
+
+#### Options
+
+* *maxParallel* : Maximum number of consumers.
