@@ -6,7 +6,7 @@ A Promise implementation of the producer-consumer problem.
 Basically a queue in which you can keep adding promises. 
 Consumer(s) consume promises and notify the producer. Uses the [then/promise](http://github.com/then/promise) implementation.
 
-Number of consumers is dynamic. (Currently changing the maxParallel value does not do anything, coming soon)
+Number of consumers is dynamic. (**Coming soon**. Currently changing the maxParallel after initialization does not do anything)
 
 #### Usage
 
@@ -34,4 +34,4 @@ Note that the consumer function is not immediately invoked. Only when a consumer
 
 #### Options
 
-* *maxParallel* : Maximum number of consumers.
+* *maxParallel* : Maximum number of consumers. *If not specified, assumes inifite number of consumers*
