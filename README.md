@@ -12,7 +12,7 @@ Number of consumers is dynamic. (**Coming soon**. Currently changing the maxPara
 
 * Require the module and initialize a PCQueue
 ```javascript
-var PCQueue = require("promise-pc");
+var PCQueue = require("promise-pc").PCQueue;
 var pcqueue = new PCQueue(opts);
 ```
 See below for available options
