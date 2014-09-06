@@ -100,3 +100,75 @@ describe("HTTP request consumer", function() {
         }
     })
 });
+
+describe("Tree notify", function(){
+    it("should be notified when all nodes on a tree are consumed", function(done) {
+
+        //Create new PCQueue
+        var pcqueue = new PCQueue({
+            maxParallel : 2,
+            tree : true
+        });
+        //To verify
+        var num_consumed = 0, num_produced = 0;
+        
+        //Sample tree
+        var tree = {
+            name : "Root",
+            children: [{
+                name : "Child 1",
+                children : [{
+                    name : "Child 11",
+                    children : []
+                }]
+            }, {
+                name : "Child 2",
+                children : []
+            }, {
+                name : "Child 3",
+                children : []
+            }]
+        };
+        
+        //The function "treeNotify" can be called on any of the promises
+        //Will be invoked when tree consumption is done
+        pcqueue.produce(function() {
+            return treeRecurs(tree);
+        }).done(handleConsumption);
+        
+        pcqueue.treeNotify(function() {
+            console.log("Tree consumed");
+            done();
+        });
+        
+        function treeRecurs(node) {
+            return new Promise(function(resolve, reject) {
+                var promise = this;
+                for (var i = 0; i < node.children.length; i++) {
+                    var childNode = node.children[i];
+                    /*pcqueue.produce(function() {
+                        return treeRecurs(childNode);
+                    }).done(handleConsumption);*/
+                    (function(childNode) {
+                        return pcqueue.produce(function() {
+                            return treeRecurs(childNode);
+                    })})(childNode).done(handleConsumption);
+                }
+                
+                //This statement notifies the producer consumer module of the number of 
+                //children the current node has.
+                //It is used to calculate when all nodes in a tree have finished consumption
+                pcqueue.children(node.children.length);
+                
+                //Mocking an aync operation
+                setTimeout(function(){
+                    resolve(node.name);
+                },Math.random()*1000 + 500);
+            });
+        }
+        
+        function handleConsumption(name) {
+            console.log(name);
+        }
+    });
+});
