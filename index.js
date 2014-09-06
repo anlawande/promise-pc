@@ -7,6 +7,12 @@ function PCQueue(opts) {
 
     if(opts && opts.maxParallel)
         this.num_consumers = opts.maxParallel;
+
+    if(opts && opts.tree) {
+        this.treeNotificationList = [];
+        this.treeNodes = 1;
+        this.treeNodesDone = 0;
+    }
 }
 
 PCQueue.prototype.produce = function(func) {
@@ -54,9 +60,26 @@ PCQueue.prototype.consume = function() {
     var curr = self.promises.shift();
     curr.func().done(function(data) {
         curr.resolve(data);
+        
+        //Calling the tree notification list.
+        process.nextTick(function() {
+            self.treeNodesDone++;
+            if(self.treeNodes === self.treeNodesDone) {
+                for(var i = 0; i < self.treeNotificationList.length; i++)
+                    self.treeNotificationList[i]();
+            }
+        });
     }, function(err) {
         curr.reject(err);
     });
+}
+
+PCQueue.prototype.treeNotify = function(func) {
+    this.treeNotificationList.push(func);
+}
+
+PCQueue.prototype.children = function(numChild) {
+    this.treeNodes += numChild;
 }
 
 exports.PCQueue = PCQueue;
