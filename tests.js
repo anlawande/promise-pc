@@ -146,13 +146,13 @@ describe("Tree notify", function(){
                 var promise = this;
                 for (var i = 0; i < node.children.length; i++) {
                     var childNode = node.children[i];
-                    /*pcqueue.produce(function() {
-                        return treeRecurs(childNode);
-                    }).done(handleConsumption);*/
+                    
+                    //wrapping for closure
                     (function(childNode) {
-                        return pcqueue.produce(function() {
+                        pcqueue.produce(function() {
                             return treeRecurs(childNode);
-                    })})(childNode).done(handleConsumption);
+                        }).done(handleConsumption)
+                    })(childNode);
                 }
                 
                 //This statement notifies the producer consumer module of the number of 
