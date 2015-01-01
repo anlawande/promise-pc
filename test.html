@@ -1,0 +1,27 @@
+<html>
+	<head>
+		<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="index.js"></script>
+		<script type="text/javascript">
+			//Create new PCQueue
+			var pcqueue = new PCQueue({
+				maxParallel : 2
+			});
+
+			pcqueue.produce(function() {
+				var promise = new jQuery.Deferred();
+				
+				setTimeout(function() {
+					promise.resolve();
+				}, 5000);
+				
+				return promise;
+			}).then(function() {
+				console.log("Done");
+			});
+		</script>
+	</head>
+	<body>
+		<div id="msg"></div>
+	</body>
+</html>

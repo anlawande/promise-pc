@@ -1,4 +1,19 @@
-var Promise = require("promise");
+var Promise;
+if(!window)
+	Promise = require("promise");
+else {
+	Promise = function(callback) {
+		var promise = new jQuery.Deferred();
+		
+		callback(function(args) {
+			promise.resolve(args);
+		}, function(args) {
+			promise.reject(args);
+		});
+		
+		return promise;
+	}
+}
 
 function PCQueue(opts) {
     this.promises = [];
@@ -62,7 +77,12 @@ PCQueue.prototype.consume = function() {
         curr.resolve(data);
         
         //Calling the tree notification list.
-        process.nextTick(function() {
+		var nextTick;
+		if(!window)
+			nextTick = process.nextTick;
+		else
+			nextTick = setTimeout;
+        nextTick(function() {
             self.treeNodesDone++;
             if(self.treeNodes === self.treeNodesDone) {
                 for(var i = 0; i < self.treeNotificationList.length; i++)
@@ -82,4 +102,7 @@ PCQueue.prototype.children = function(numChild) {
     this.treeNodes += numChild;
 }
 
-exports.PCQueue = PCQueue;
+if(!window)
+	exports.PCQueue = PCQueue;
+else
+	window.PCQueue = PCQueue;
